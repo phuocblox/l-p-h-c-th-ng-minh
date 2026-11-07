@@ -1,0 +1,164 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'minhuyendb@gmail.com' ||
+        (exists(/databases/$(database)/documents/profiles/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == 'ADMIN')
+      );
+    }
+
+    function isTeacher() {
+      return isSignedIn() && (
+        isAdmin() ||
+        (exists(/databases/$(database)/documents/profiles/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role == 'TEACHER')
+      );
+    }
+
+    // Test connection doc
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Schools Collection
+    match /schools/{schoolId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isValidId(schoolId);
+    }
+
+    // Profiles Collection
+    match /profiles/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(userId) &&
+        (request.auth.uid == userId || isAdmin()) &&
+        // Prevent unauthorized self-promotion to ADMIN
+        (incoming().role != 'ADMIN' || isAdmin());
+      allow update: if isSignedIn() && isValidId(userId) &&
+        (request.auth.uid == userId || isAdmin()) &&
+        // Users cannot escalate their own role
+        (incoming().role == existing().role || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Classes Collection
+    match /classes/{classId} {
+      allow read: if isSignedIn();
+      allow create, update: if isTeacher() && isValidId(classId);
+      allow delete: if isAdmin() && isValidId(classId);
+    }
+
+    // Students Collection
+    match /students/{studentId} {
+      allow read: if isSignedIn();
+      allow create, update: if isTeacher() && isValidId(studentId);
+      allow delete: if isAdmin() && isValidId(studentId);
+    }
+
+    // Attendance Sessions Collection
+    match /attendanceSessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow create, update: if isTeacher() && isValidId(sessionId);
+      allow delete: if isAdmin() && isValidId(sessionId);
+    }
+
+    // Assignments Collection
+    match /assignments/{assignmentId} {
+      allow read: if isSignedIn();
+      allow create, update: if isTeacher() && isValidId(assignmentId);
+      allow delete: if isTeacher() && isValidId(assignmentId);
+    }
+
+    // Submissions Collection
+    match /submissions/{submissionId} {
+      allow read: if isSignedIn() && (
+        isTeacher() ||
+        existing().studentId == request.auth.uid
+      );
+      // Student can submit their own work (cannot self-grade)
+      allow create: if isSignedIn() && isValidId(submissionId) && (
+        isTeacher() ||
+        (incoming().studentId == request.auth.uid && !('score' in incoming()))
+      );
+      allow update: if isSignedIn() && isValidId(submissionId) && (
+        isTeacher() ||
+        (existing().studentId == request.auth.uid &&
+         incoming().studentId == existing().studentId &&
+         !incoming().diff(existing()).affectedKeys().hasAny(['score', 'feedback', 'gradedAt', 'gradedById']))
+      );
+      allow delete: if isTeacher() && isValidId(submissionId);
+    }
+
+    // Grade Items Collection
+    match /gradeItems/{gradeItemId} {
+      allow read: if isSignedIn();
+      allow write: if isTeacher() && isValidId(gradeItemId);
+    }
+
+    // Student Grades Collection
+    match /studentGrades/{gradeId} {
+      allow read: if isSignedIn();
+      allow write: if isTeacher() && isValidId(gradeId);
+    }
+
+    // System Alerts Collection
+    match /alerts/{alertId} {
+      allow read: if isTeacher();
+      allow write: if isTeacher() && isValidId(alertId);
+    }
+
+    // Announcements Collection
+    match /announcements/{announcementId} {
+      allow read: if isSignedIn();
+      allow write: if isTeacher() && isValidId(announcementId);
+    }
+
+    // Audit Logs Collection (Append-only)
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn() && isValidId(logId);
+      allow update, delete: if false; // strictly immutable
+    }
+
+    // Quizzes & Questions
+    match /quizzes/{quizId} {
+      allow read: if isSignedIn();
+      allow write: if isTeacher() && isValidId(quizId);
+    }
+
+    match /questions/{questionId} {
+      allow read: if isSignedIn();
+      allow write: if isTeacher() && isValidId(questionId);
+    }
+
+    // Resources
+    match /resources/{resourceId} {
+      allow read: if isSignedIn();
+      allow write: if isTeacher() && isValidId(resourceId);
+    }
+  }
+}

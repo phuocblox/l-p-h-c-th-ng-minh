@@ -1,0 +1,292 @@
+{
+  "entities": {
+    "School": {
+      "title": "School",
+      "description": "Educational institution information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 255 },
+        "code": { "type": "string", "maxLength": 50 },
+        "address": { "type": "string", "maxLength": 500 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "email": { "type": "string", "maxLength": 100 },
+        "principalName": { "type": "string", "maxLength": 100 },
+        "logoUrl": { "type": "string", "maxLength": 500 }
+      },
+      "required": ["id", "name", "code"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Application user profile including roles and permissions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 255 },
+        "fullName": { "type": "string", "maxLength": 255 },
+        "role": { "type": "string", "enum": ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "email", "fullName", "role", "schoolId"]
+    },
+    "Classroom": {
+      "title": "Classroom",
+      "description": "Classroom metadata, teacher assignment, room and join code",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "academicYearId": { "type": "string", "maxLength": 128 },
+        "gradeLevelId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "code": { "type": "string", "maxLength": 50 },
+        "roomNumber": { "type": "string", "maxLength": 50 },
+        "homeroomTeacherId": { "type": "string", "maxLength": 128 },
+        "homeroomTeacherName": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 500 },
+        "color": { "type": "string", "maxLength": 50 },
+        "studentCount": { "type": "number" },
+        "isArchived": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "schoolId", "name", "code", "homeroomTeacherId"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Student record with 360 degree educational profiles",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "schoolId": { "type": "string", "maxLength": 128 },
+        "studentCode": { "type": "string", "maxLength": 50 },
+        "fullName": { "type": "string", "maxLength": 255 },
+        "dateOfBirth": { "type": "string", "maxLength": 50 },
+        "gender": { "type": "string", "enum": ["Nam", "Nữ"] },
+        "currentClassId": { "type": "string", "maxLength": 128 },
+        "className": { "type": "string", "maxLength": 100 },
+        "orderNumber": { "type": "number" },
+        "teamGroup": { "type": "string", "maxLength": 50 },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "email": { "type": "string", "maxLength": 255 },
+        "address": { "type": "string", "maxLength": 500 },
+        "parentId": { "type": "string", "maxLength": 128 },
+        "parentName": { "type": "string", "maxLength": 255 },
+        "parentPhone": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["Đang học", "Nghỉ học", "Chuyển lớp", "Bảo lưu"] },
+        "conduct": { "type": "string", "enum": ["Tốt", "Khá", "Trung bình", "Yếu"] },
+        "gpa": { "type": "number" },
+        "rewardPoints": { "type": "number" }
+      },
+      "required": ["id", "schoolId", "studentCode", "fullName", "currentClassId"]
+    },
+    "AttendanceSession": {
+      "title": "AttendanceSession",
+      "description": "Daily period attendance session record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "className": { "type": "string", "maxLength": 100 },
+        "date": { "type": "string", "maxLength": 50 },
+        "period": { "type": "number" },
+        "sessionType": { "type": "string", "enum": ["morning", "afternoon"] },
+        "takenById": { "type": "string", "maxLength": 128 },
+        "takenByName": { "type": "string", "maxLength": 100 },
+        "totalStudents": { "type": "number" },
+        "presentCount": { "type": "number" },
+        "excusedCount": { "type": "number" },
+        "unexcusedCount": { "type": "number" },
+        "lateCount": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "classId", "date", "period", "takenById"]
+    },
+    "Assignment": {
+      "title": "Assignment",
+      "description": "Homework and learning task assignment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "className": { "type": "string", "maxLength": 100 },
+        "subjectId": { "type": "string", "maxLength": 128 },
+        "subjectName": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 255 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "teacherId": { "type": "string", "maxLength": 128 },
+        "teacherName": { "type": "string", "maxLength": 100 },
+        "assignedDate": { "type": "string", "maxLength": 50 },
+        "dueDate": { "type": "string", "maxLength": 50 },
+        "maxScore": { "type": "number" },
+        "status": { "type": "string", "enum": ["DRAFT", "ACTIVE", "CLOSED"] },
+        "submittedCount": { "type": "number" },
+        "totalStudents": { "type": "number" },
+        "gradedCount": { "type": "number" }
+      },
+      "required": ["id", "classId", "title", "teacherId", "dueDate", "status"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "Student homework submission and teacher evaluation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "assignmentId": { "type": "string", "maxLength": 128 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 255 },
+        "studentCode": { "type": "string", "maxLength": 50 },
+        "submittedAt": { "type": "string" },
+        "content": { "type": "string", "maxLength": 5000 },
+        "score": { "type": "number" },
+        "feedback": { "type": "string", "maxLength": 2000 },
+        "gradedAt": { "type": "string" },
+        "gradedById": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["Chưa làm", "Đã nộp", "Nộp muộn", "Đã chấm", "Yêu cầu làm lại"] }
+      },
+      "required": ["id", "assignmentId", "studentId", "status"]
+    },
+    "GradeItem": {
+      "title": "GradeItem",
+      "description": "Grading item category and multiplier weight",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "subjectId": { "type": "string", "maxLength": 128 },
+        "subjectName": { "type": "string", "maxLength": 100 },
+        "name": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "enum": ["TX", "GK", "CK", "ASSIGNMENT"] },
+        "weight": { "type": "number" },
+        "semester": { "type": "number" },
+        "maxScore": { "type": "number" }
+      },
+      "required": ["id", "classId", "name", "category", "weight"]
+    },
+    "StudentGrade": {
+      "title": "StudentGrade",
+      "description": "Individual student grade entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "gradeItemId": { "type": "string", "maxLength": 128 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "score": { "type": "number" },
+        "note": { "type": "string", "maxLength": 500 },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "gradeItemId", "studentId"]
+    },
+    "SystemAlert": {
+      "title": "SystemAlert",
+      "description": "Attendance and academic early alerts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "classId": { "type": "string", "maxLength": 128 },
+        "className": { "type": "string", "maxLength": 100 },
+        "studentId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 255 },
+        "type": { "type": "string", "enum": ["attendance", "grades", "assignment", "behavior"] },
+        "severity": { "type": "string", "enum": ["high", "medium", "low"] },
+        "title": { "type": "string", "maxLength": 255 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "status": { "type": "string", "enum": ["NEW", "VIEWED", "PROCESSING", "RESOLVED"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "type", "severity", "title", "message", "status"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Classroom and school wide announcements",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 255 },
+        "content": { "type": "string", "maxLength": 5000 },
+        "priority": { "type": "string", "enum": ["URGENT", "HIGH", "NORMAL"] },
+        "targetType": { "type": "string", "enum": ["ALL", "CLASS", "PARENTS", "STUDENTS"] },
+        "targetClassId": { "type": "string", "maxLength": 128 },
+        "targetClassName": { "type": "string", "maxLength": 100 },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "authorRole": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string" },
+        "viewCount": { "type": "number" },
+        "totalRecipients": { "type": "number" }
+      },
+      "required": ["id", "title", "content", "priority", "targetType"]
+    },
+    "AuditLogItem": {
+      "title": "AuditLogItem",
+      "description": "Security and operational audit trail logs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "userRole": { "type": "string", "enum": ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
+        "action": { "type": "string", "maxLength": 100 },
+        "entityType": { "type": "string", "maxLength": 50 },
+        "entityId": { "type": "string", "maxLength": 128 },
+        "details": { "type": "string", "maxLength": 1000 },
+        "timestamp": { "type": "string" },
+        "ipAddress": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "action", "entityType", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/schools/{schoolId}": {
+      "schema": "School",
+      "description": "School organization details"
+    },
+    "/profiles/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles and assigned role"
+    },
+    "/classes/{classId}": {
+      "schema": "Classroom",
+      "description": "Classes belonging to academic years"
+    },
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Student 360 degree profiles"
+    },
+    "/attendanceSessions/{sessionId}": {
+      "schema": "AttendanceSession",
+      "description": "Attendance sessions"
+    },
+    "/assignments/{assignmentId}": {
+      "schema": "Assignment",
+      "description": "Class assignments"
+    },
+    "/submissions/{submissionId}": {
+      "schema": "Submission",
+      "description": "Student assignment submissions"
+    },
+    "/gradeItems/{gradeItemId}": {
+      "schema": "GradeItem",
+      "description": "Grade items for classes"
+    },
+    "/studentGrades/{gradeId}": {
+      "schema": "StudentGrade",
+      "description": "Recorded student scores"
+    },
+    "/alerts/{alertId}": {
+      "schema": "SystemAlert",
+      "description": "Academic and attendance alerts"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Announcements and bulletins"
+    },
+    "/auditLogs/{logId}": {
+      "schema": "AuditLogItem",
+      "description": "Immutable audit trails"
+    }
+  }
+}
